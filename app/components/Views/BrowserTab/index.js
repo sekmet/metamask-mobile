@@ -1270,7 +1270,9 @@ export const BrowserTab = props => {
 	/**
 	 * Handle message from website
 	 */
-	const onMessage = ({ nativeEvent: { data } }) => {
+	const onMessage = ({ nativeEvent }) => {
+		let data = nativeEvent.data;
+
 		try {
 			data = typeof data === 'string' ? JSON.parse(data) : data;
 			if (!data || (!data.type && !data.name)) {
@@ -1296,9 +1298,12 @@ export const BrowserTab = props => {
 					onFrameLoadStarted(url);
 					break;
 				}*/
-				case 'GET_WEBVIEW_URL':
-					webviewUrlPostMessagePromiseResolve.current &&
-						webviewUrlPostMessagePromiseResolve.current(data.payload);
+				case 'GET_WEBVIEW_URL': {
+					const { url } = data.payload;
+					if (url === nativeEvent.url)
+						webviewUrlPostMessagePromiseResolve.current &&
+							webviewUrlPostMessagePromiseResolve.current(data.payload);
+				}
 			}
 		} catch (e) {
 			Logger.error(e, `Browser::onMessage on ${url.current}`);
